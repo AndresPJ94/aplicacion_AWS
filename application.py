@@ -101,6 +101,7 @@ def retrain():
         data = pd.DataFrame(mi_lista)
         test = data.Users[-30:]
         preds = model.predict(30)
+        preds=pd.DataFrame(preds).iloc[:-30,:]
 
         mape =  mean_absolute_percentage_error(test, preds)
 
@@ -118,8 +119,35 @@ def retrain():
         return render_template('fail_score.html')
 
     
+@app.route("/fit")
+def fit_model(model):
+        username = "admin_cloud"
+        password = "grupo2DS"
+        host = "database-1.cf0hxwxsba9n.us-east-2.rds.amazonaws.com" 
+        port = "3306"
 
+        db = pymysql.connect(host = host,
+                     user = username,
+                     password = password,
+                     cursorclass = pymysql.cursors.DictCursor)
+        cursor = db.cursor()
+        cursor.connection.commit()
+        use_db = ''' USE users_web'''
+        cursor.execute(use_db)
 
+        sql = '''SELECT * FROM usuarios_web'''
+        cursor.execute(sql)
 
+        mi_lista = cursor.fetchall()
+        data = pd.DataFrame(mi_lista)
+        train = data.Users
+        model.fit(train)
+
+        pickle.dump(model, open('model/arima_model.model', 'wb'))
+        with open('model/arima_model', "rb") as reentrenado:
+                model = pickle.load(reentrenado)
+
+        db.close()
+        return render_template('fit_model.html')
 if __name__=='__main__':
     app.run(debug = True)
