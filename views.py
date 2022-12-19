@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-model = pd.read_pickle("model/model.model") 
+model = pd.read_pickle("model/arima_model.model") 
 datos=pd.read_csv("datos_train.csv")
 datos["Date"]=pd.to_datetime(datos['Date'],format='%Y/%m/%d')
 datos=datos.set_index("Date")
